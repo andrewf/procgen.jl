@@ -25,14 +25,14 @@ function naive_line(img, color, x1, y1, x2, y2)
         start = (x2, y2)
         finish = (x1, y1)
     end
-    startx = start[1]
-    finishx = finish[1]
+    startx = int(round(start[1]))
+    finishx = int(round(finish[1]))
     xdiff = finishx - startx
     if xdiff == 0
-        starty = min(y1, y2)
-        finishy = max(y1, y2)
+        starty = int(round(min(y1, y2)))
+        finishy = int(round(max(y1, y2)))
         for y in starty:finishy
-            img[y, x1] = color
+            img[y, int(x1)] = color
         end
     else
         starty = float(start[2])
@@ -41,21 +41,40 @@ function naive_line(img, color, x1, y1, x2, y2)
         for x in startx:finishx
             xdist = x - startx
             y = round( starty + xdist*slope )
+            y = int(y)
             img[y,x] = color
         end
     end
 end
 
-function line_loop(img, color, points)
+function each_pair(pairfn, points)
     prev = points[length(points)] # start with last element
-    for (x, y) in points
-        xprev, yprev = prev
-        naive_line(img, color, xprev,yprev, x,y)
-        prev = (x,y)
+    for p in points
+        pairfn(prev, p)
+        prev = p
     end
 end
 
-    
+function line_loop(img, color, points)
+    each_pair((p1, p2)->( naive_line(img, color, p1[1],p1[2], p2[1],p2[2]) ), points)
+end
+
+# cut off each corner by for each edge, returning two points in the middle,
+# each some fraction of the total length from the end
+function subsurf_loop(points)
+    new_points = Array((Float64, Float64), 0)
+    each_pair(
+        (p1, p2) -> begin
+            d = (p2[1]-p1[1], p2[2]-p1[2])
+            r = 1.0/4.0
+            r2 = 1 - r
+            push!(new_points, (p1[1] + r*d[1], p1[2] + r*d[2]))
+            push!(new_points, (p1[1] + r2*d[1], p1[2] + r2*d[2]))
+        end,
+        points
+    )
+    return new_points
+end
 
 data = Array(RGB, h*res, w*res)
 fill!(data, RGB(1,1,1))
@@ -66,10 +85,15 @@ fill!(data, RGB(1,1,1))
 #    end
 #end
 
-naive_line(data, RGB(0,0,0), 1,1, 900,400)
-naive_line(data, RGB(1,0,0), 700, 10, 700, 700)
+poly = [(100.0, 400.0), (500.0,200.0),(550.0, 600.0), (700.0,650.0), (700.0, 700.0), (150.0, 750.0)]
+poly2 = subsurf_loop(poly)
+poly3 = subsurf_loop(poly2)
+poly4 = subsurf_loop(poly3)
 
-line_loop(data, RGB(0,0,0), [(10,30),(30,10),(50,30),(30,50)])
+line_loop(data, RGB(1,0,0), poly)
+#line_loop(data, RGB(0,0,1), poly2)
+#line_loop(data, RGB(0,0,0), poly3)
+line_loop(data, RGB(0,1,0), poly4)
 
 println("writing img")
 imwrite(data, "eckphbth.png")
