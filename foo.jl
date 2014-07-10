@@ -46,6 +46,16 @@ function naive_line(img, color, x1, y1, x2, y2)
     end
 end
 
+function line_loop(img, color, points)
+    prev = points[length(points)] # start with last element
+    for (x, y) in points
+        xprev, yprev = prev
+        naive_line(img, color, xprev,yprev, x,y)
+        prev = (x,y)
+    end
+end
+
+    
 
 data = Array(RGB, h*res, w*res)
 fill!(data, RGB(1,1,1))
@@ -58,6 +68,8 @@ fill!(data, RGB(1,1,1))
 
 naive_line(data, RGB(0,0,0), 1,1, 900,400)
 naive_line(data, RGB(1,0,0), 700, 10, 700, 700)
+
+line_loop(data, RGB(0,0,0), [(10,30),(30,10),(50,30),(30,50)])
 
 println("writing img")
 imwrite(data, "eckphbth.png")
