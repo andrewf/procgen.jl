@@ -18,30 +18,41 @@ for y in 1:h
 end
 
 function naive_line(img, color, x1, y1, x2, y2)
-    if x1 < x2
-        start = (x1, y1)
-        finish = (x2, y2)
-    else
-        start = (x2, y2)
-        finish = (x1, y1)
-    end
-    startx = int(round(start[1]))
-    finishx = int(round(finish[1]))
-    xdiff = finishx - startx
+    xdiff = abs(x1 - x2)
+    ydiff = abs(y1 - y2)
+    start = (x1, y1)
+    finish = (x2, y2)
     if xdiff == 0
+        # line is perfectly vertical
         starty = int(round(min(y1, y2)))
         finishy = int(round(max(y1, y2)))
         for y in starty:finishy
             img[y, int(x1)] = color
         end
-    else
+    elseif xdiff >= ydiff
+        # line is closer to horizontal
+        if x2 < x1
+            (start, finish) = (finish, start)
+        end
         starty = float(start[2])
         finishy = float(finish[2])
         slope = (finishy - starty)/float(xdiff)
-        for x in startx:finishx
-            xdist = x - startx
-            y = round( starty + xdist*slope )
+        for x in int(round(start[1])):int(round(finish[1]))
+            xdist = x - start[1]
+            y = round( start[2] + xdist*slope )
             y = int(y)
+            img[y,x] = color
+        end
+    else
+        # line is more vertical
+        if y2 < y1
+            (start, finish) = (finish, start)
+        end
+        slope = (finish[1] - start[1])/(finish[2] - start[2])
+        for y in int(round(start[2])):int(round(finish[2]))
+            ydist = y - start[2]
+            x = round( start[1] + slope*ydist )
+            x = int(x)
             img[y,x] = color
         end
     end
@@ -91,8 +102,6 @@ poly3 = subsurf_loop(poly2)
 poly4 = subsurf_loop(poly3)
 
 line_loop(data, RGB(1,0,0), poly)
-#line_loop(data, RGB(0,0,1), poly2)
-#line_loop(data, RGB(0,0,0), poly3)
 line_loop(data, RGB(0,1,0), poly4)
 
 println("writing img")
