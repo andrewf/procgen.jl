@@ -30,23 +30,47 @@ function each_pixel(fn, img)
     end
 end
 
+ITERATIONS = 200
+RADIUS = 5.0
+
+function escape_time(data, initfn, iterfn)
+    each_pixel(data) do x,y
+        c = x + y*im
+        z = initfn(c)
+        iter = 0
+        while abs(z) < RADIUS && iter < ITERATIONS
+            z = iterfn(z, c)
+            iter += 1
+        end
+        if iter == 200
+            v = 0
+        else
+            # greyscale depending on number of iterations it took to get out
+            v = 1.0 - float(iter)/200.0
+        end
+        return RGB(v,v,v)
+    end
+end
+
+function real_to_01(x)
+    (atan(x) + pi/2)/pi
+end
+
 println("generating")
 each_pixel(data) do x,y
     c = x + y*im
-    z = 0 + 0im
-    iter = 0
-    while abs(z) < 2.0 && iter < 200
-        z = z^2 + c
-        iter += 1
-    end
-    if iter == 200
-        v = 0
-    else
-        # greyscale depending on number of iterations it took to get out
-        v = 1.0 - float(iter)/200.0
-    end
-    return RGB(v,v,v)
+    z = c^5 - 2c^4 + 3c^2 + 1
+    # derive color from z
+    d = z - c # distance traveled
+    return convert(RGB, HSV(120.0, real_to_01(real(z)), real_to_01(imag(z))))
 end
+
+#escape_time(
+#    data,
+#    #c->0+0im,
+#    c->c,
+#    (z,c)->z^2 -0.6-0.3im
+#)
 
 
 println("writing img")
