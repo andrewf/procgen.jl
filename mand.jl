@@ -1,14 +1,13 @@
 using Images
 using Color
 
-w = 1000
-h = 1000
+r = x -> int(round(x))
 
-top = (-2, -2)  # that is, the least point on the image
-dims = (4, 4)
-res = 250 # px/u
+top = (-2,-1.5)  # that is, the least point on the image
+dims = (3,3)
+res = 300 # px/u
 
-data = Array(RGB, dims[2]*res, dims[1]*res)
+data = Array(RGB, r(dims[2]*res), r(dims[1]*res))
 fill!(data, RGB(1,1,1))
 
 function u2px(pt)
@@ -46,7 +45,7 @@ function escape_time(data, initfn, iterfn)
             v = 0
         else
             # greyscale depending on number of iterations it took to get out
-            v = 1.0 - float(iter)/200.0
+            v = 1.0 # - float(iter)/200.0
         end
         return RGB(v,v,v)
     end
@@ -57,20 +56,20 @@ function real_to_01(x)
 end
 
 println("generating")
-each_pixel(data) do x,y
-    c = x + y*im
-    z = c^5 - 2c^4 + 3c^2 + 1
-    # derive color from z
-    d = z - c # distance traveled
-    return convert(RGB, HSV(120.0, real_to_01(real(z)), real_to_01(imag(z))))
-end
+#each_pixel(data) do x,y
+#    c = x + y*im
+#    z = c^5 - 2c^4 + 3c^2 + 1
+#    # derive color from z
+#    d = z - c # distance traveled
+#    return convert(RGB, HSV(240.0, real_to_01(real(z)), real_to_01(imag(z))))
+#end
 
-#escape_time(
-#    data,
-#    #c->0+0im,
-#    c->c,
-#    (z,c)->z^2 -0.6-0.3im
-#)
+escape_time(
+    data,
+    c->0+0im,
+    #c->c,
+    (z,c)->z^2 + c
+)
 
 
 println("writing img")
