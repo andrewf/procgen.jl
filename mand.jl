@@ -3,9 +3,9 @@ using Color
 
 r = x -> int(round(x))
 
-top = (-2,-1.5)  # that is, the least point on the image
+top = (-2.1,-1.5)  # that is, the least point on the image
 dims = (3,3)
-res = 300 # px/u
+res = 1000 # px/u
 
 data = Array(RGB, r(dims[2]*res), r(dims[1]*res))
 fill!(data, RGB(1,1,1))
@@ -45,7 +45,7 @@ function escape_time(data, initfn, iterfn)
             v = 0
         else
             # greyscale depending on number of iterations it took to get out
-            v = 1.0 # - float(iter)/200.0
+            v = 1.0 - float(iter)/200.0
         end
         return RGB(v,v,v)
     end
