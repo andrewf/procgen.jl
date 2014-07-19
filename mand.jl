@@ -3,9 +3,9 @@ using Color
 
 r = x -> int(round(x))
 
-top = (-2.1,-1.5)  # that is, the least point on the image
-dims = (3,3)
-res = 1000 # px/u
+top = (-2.2,-2)  # that is, the least point on the image
+dims = (4,4)
+res = 200 # px/u
 
 data = Array(RGB, r(dims[2]*res), r(dims[1]*res))
 fill!(data, RGB(1,1,1))
@@ -66,8 +66,9 @@ println("generating")
 
 escape_time(
     data,
-    c->0+0im,
-    #c->c,
+    # init pos -> init value
+    c->c,
+    # iterated function (curr, px) -> new
     (z,c)->z^2 + c
 )
 
