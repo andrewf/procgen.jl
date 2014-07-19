@@ -1,30 +1,31 @@
 using Images
 using Color
 
-r = x -> int(round(x))
+include("util.jl")
 
-top = (-2.2,-2)  # that is, the least point on the image
-dims = (4,4)
-res = 200 # px/u
+#r = x -> int(round(x))
+#
+#top = (-2.2,-2)  # that is, the least point on the image
+#dims = (4,4)
+#res = 200 # px/u
 
-data = Array(RGB, r(dims[2]*res), r(dims[1]*res))
-fill!(data, RGB(1,1,1))
+#data = Array(RGB, r(dims[2]*res), r(dims[1]*res))
+#fill!(data, RGB(1,1,1))
 
-function u2px(pt)
-    ux, uy = pt
-    int(round(ux - top[1]))*res, int(round(uy - top[2]))
-end
+img = makeImage(
+        # position
+        -2.2, -2,
+        # dimensions
+        4, 4,
+        # resolution
+        200  # px/u
+      )
 
-function px2u(pt)
-    px, py = pt
-    float(px)/res + top[1], float(py)/res + top[2]
-end
-
-function each_pixel(fn, img)
-    for y in 1:(dims[2]*res)
-        for x in 1:(dims[1]*res)
-            u = px2u((x,y))
-            img[y,x] = fn(u[1], u[2])
+function each_pixel(fn, img::CoordImage)
+    for y in 1:size(img.data, 1)
+        for x in 1:size(img.data, 2)
+            u = px2u(img, (x,y))
+            img.data[y,x] = fn(u[1], u[2])
         end
     end
 end
@@ -32,8 +33,8 @@ end
 ITERATIONS = 200
 RADIUS = 5.0
 
-function escape_time(data, initfn, iterfn)
-    each_pixel(data) do x,y
+function escape_time(img, initfn, iterfn)
+    each_pixel(img) do x,y
         c = x + y*im
         z = initfn(c)
         iter = 0
@@ -56,6 +57,7 @@ function real_to_01(x)
 end
 
 println("generating")
+
 #each_pixel(data) do x,y
 #    c = x + y*im
 #    z = c^5 - 2c^4 + 3c^2 + 1
@@ -65,7 +67,7 @@ println("generating")
 #end
 
 escape_time(
-    data,
+    img,
     # init pos -> init value
     c->c,
     # iterated function (curr, px) -> new
@@ -74,4 +76,4 @@ escape_time(
 
 
 println("writing img")
-imwrite(data, "fractal.png")
+imwrite(img.data, "fractal.png")

@@ -44,7 +44,7 @@ function makeImage(top, left, w, h, res)
     pxw, pxh = r(w*res), r(h*res)
     data = Array(RGB, pxh, pxw)
     fill!(data, RGB(1,1,1))
-    Foo(data, (top, left), (w, h), res)
+    CoordImage(data, (top, left), (w, h), res)
 end
 
 function each_edge(pairfn, p::Polygon)
@@ -116,20 +116,3 @@ function subsurf(poly)
     return Polygon(new_points)
 end
 
-
-# create an image, and a function that maps float coordinates to
-# int coordinates based on a rect.
-function image_and_coords(top::(Float64, Float64),
-                          dims::(Float64, Float64),
-                          res::Int64) # px/1.0
-    x,y = top
-    w,h = dims
-    img = Array(RGB, int(round(h))*res, int(round(w))*res)
-    mapper = (pos::(Float64, Float64)) -> begin
-        inx, iny = pos
-        outx = int(round(inx - x))*res
-        outy = int(round(iny - y))*res
-        (outx, outy)
-    end
-    (img, mapper)
-end
