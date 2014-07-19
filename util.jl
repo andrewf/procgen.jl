@@ -40,6 +40,15 @@ function plot(img::CoordImage, pt::(Float64, Float64), color)
     plot(img, pt, color)
 end
 
+function each_pixel(fn, img::CoordImage)
+    for y in 1:size(img.data, 1)
+        for x in 1:size(img.data, 2)
+            u = px2u(img, (x,y))
+            img.data[y,x] = fn(u[1], u[2])
+        end
+    end
+end
+
 function makeImage(top, left, w, h, res)
     pxw, pxh = r(w*res), r(h*res)
     data = Array(RGB, pxh, pxw)
