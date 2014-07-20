@@ -73,18 +73,17 @@ brown = RGB(0x7e/255, 0x63/255, 0x1f/255)
 
 each_pixel(img) do x,y
     # pattern 1
-    n = noise(1, x, y)
-    n += noise(.5, x, y)/2
-    n += noise(0.25, x, y)/4
-    r = real_to_01(n)
-    #r = (n+1)/2
+    n = noise(1, x, y)*4/7
+    n += noise(.5, x, y)*2/7
+    n += noise(0.25, x, y)*1/7
+    r = (n+1)/2   # go from (-1,1) to (0,1)
     # pattern 2
-    m = noise(.7, x, y)
-    m += noise(.3, x, y)/2
-    m = real_to_01(m)
+    m = noise(.7, x, y)*2/3
+    m += noise(.3, x, y)*1/3
+    m = (m+1)/2
     if m > .6
         brown
-    elseif r > .57
+    elseif r > .5
         green
     else
         tan
