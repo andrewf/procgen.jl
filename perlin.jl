@@ -56,6 +56,8 @@ function noise(gridspace, x::Float64, y::Float64)
     # interp between top and bottom edges
     n_final = n_x0*(1-interp(yfrac)) + n_x1*interp(yfrac)
     # and actually that's it
+    # as long as all the vectors are unit vectors, this is true
+    assert(-1 <= n_final <= 1)
     n_final
 end
 
@@ -65,16 +67,27 @@ function real_to_01(x)
     (atan(x) + pi/2)/pi
 end
 
+tan = RGB(0xe4/255, 0xce/255, 0x86/255)
+green = RGB(0x70/255, 0xaf/255, 0x00/255)
+brown = RGB(0x7e/255, 0x63/255, 0x1f/255)
+
 each_pixel(img) do x,y
+    # pattern 1
     n = noise(1, x, y)
     n += noise(.5, x, y)/2
     n += noise(0.25, x, y)/4
     r = real_to_01(n)
     #r = (n+1)/2
-    if r > .55
-        RGB(0,0,0)
+    # pattern 2
+    m = noise(.7, x, y)
+    m += noise(.3, x, y)/2
+    m = real_to_01(m)
+    if m > .6
+        brown
+    elseif r > .57
+        green
     else
-        RGB(1,1,1)
+        tan
     end
     #RGB(r,r,r)
 end
