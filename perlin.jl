@@ -53,7 +53,9 @@ function noise(gridspace, x::Float64, y::Float64)
     # now interp along each edge
     n_x0 = n_00*(1-interp(xfrac)) + n_10*interp(xfrac)  # top edge
     n_x1 = n_01*(1-interp(xfrac)) + n_11*interp(xfrac)  # bottom edge
+    # interp between top and bottom edges
     n_final = n_x0*(1-interp(yfrac)) + n_x1*interp(yfrac)
+    # and actually that's it
     n_final
 end
 
