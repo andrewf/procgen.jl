@@ -3,6 +3,14 @@ using Color
 
 r = x -> int(round(x))
 
+function +(a::(Number, Number), b::(Number, Number))
+    (a[1] + b[1], a[2] + b[2])
+end
+
+function -(a::(Number, Number), b::(Number, Number))
+    (a[1] - b[1], a[2] - b[2])
+end
+
 type Polygon
     points :: Array{(Float64, Float64),1}
 end
@@ -32,7 +40,7 @@ function plot(img::CoordImage, pt::(Int64, Int64), color)
         # out of range
         return
     end
-    img.data[y,x] = color
+    img.data[pt[2],pt[1]] = color
 end
 
 function plot(img::CoordImage, pt::(Float64, Float64), color)
@@ -74,7 +82,7 @@ function naive_line(img, color, x1::Int64, y1::Int64, x2::Int64, y2::Int64)
         starty = min(y1, y2)
         finishy = max(y1, y2)
         for y in starty:finishy
-            plot(img, (x, y), color)
+            plot(img, (x1, y), color)
         end
     elseif xdiff >= ydiff
         # line is closer to horizontal
@@ -99,13 +107,16 @@ function naive_line(img, color, x1::Int64, y1::Int64, x2::Int64, y2::Int64)
             ydist = y - start[2]
             x = r( start[1] + slope*ydist )
             plot(img, (x, y), color)
-            img[y,x] = color
         end
     end
 end
 
 function draw(img, color, poly::Polygon)
-    each_edge((p1, p2)-> naive_line(img, color, p1[1],p1[2], p2[1],p2[2]), poly)
+    each_edge(poly) do p1,p2
+        p1 = u2px(img, p1)
+        p2 = u2px(img, p2)
+        naive_line(img, color, p1[1],p1[2], p2[1],p2[2])
+    end
 end
 
 # cut off each corner by for each edge, returning two points in the middle,
