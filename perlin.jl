@@ -8,17 +8,16 @@ function dp(a::(Float64, Float64), b::(Float64, Float64))
     a[1]*b[1] + a[2]*b[2]
 end
 
+numgrads = 12
 # short for unit point
 function up(f)
-    angle = f*2*pi/12  # twelfths of the circle
+    angle = f*2*pi/numgrads  # twelfths of the circle
     (cos(angle), sin(angle))
 end
-
-#grads = [up(4), up(11), up(3), up(8), up(7), up(2), up(1), up(5), up(10), up(0), up(6), up(9)]
-grads = (Float64, Float64)[]
-for i in 1:17
-    th = rand()*2*pi
-    push!(grads, (cos(th), sin(th)))
+grads = [i for i in 1:17]
+grads = shuffle(grads)
+grads = map(grads) do i
+    up(i)
 end
 
 function interp(x::Float64)
