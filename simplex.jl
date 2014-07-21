@@ -4,28 +4,23 @@ function real_to_01(x)
     (atan(x) + pi/2)/pi
 end
 
-# Generate some default gradients
-numgrads = 37
-# short for unit point
-function up(f)
-    angle = f*2*pi/numgrads
-    [cos(angle), sin(angle)]
-end
-grads = [i for i in 1:numgrads]
-grads = shuffle(grads)
-grads = map(grads) do i
-    up(i)
+gridsize = (13, 11)
+grads = Array(Vector{Float64}, gridsize[2], gridsize[1])
+
+for y in 1:gridsize[2]
+    for x in 1:gridsize[1]
+        theta = rand()*2*pi
+        grads[y, x] = [cos(theta), sin(theta)]
+    end
 end
 
-gridsize = (13, 11)
 function get_gradient(x::Int, y::Int)
     # mod them by the size to make them loop
     # xor them to "hash" them
     # mod by size of grad array
     x = mod(x, gridsize[1])
     y = mod(y, gridsize[2])
-    r = (x $ y) ^ 13
-    grads[ r % length(grads) + 1 ]
+    grads[y + 1, x + 1]
 end
 
 img = makeImage(0, 0, 10, 10, 50)
@@ -102,7 +97,7 @@ function noise(gradient::Function, sidelen::Number, x::Float64, y::Float64)
         end
     end
     #println("  noise is ", sum(corners))
-    sum(corners)
+    2*sum(corners)
 end
 
 minVal = 0
