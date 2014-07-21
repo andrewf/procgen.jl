@@ -48,6 +48,14 @@ function plot(img::CoordImage, pt::(Float64, Float64), color)
     plot(img, pt, color)
 end
 
+function dot(img::CoordImage, pt::(Int64, Int64), color)
+    x, y = pt
+    plot(img, pt, color)
+    plot(img, (x+1,y), color)
+    plot(img, (x,y+1), color)
+    plot(img, (x+1,y+1), color)
+end
+
 function each_pixel(fn, img::CoordImage)
     for y in 1:size(img.data, 1)
         for x in 1:size(img.data, 2)

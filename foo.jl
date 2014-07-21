@@ -15,7 +15,7 @@ poly3 = subsurf(poly2)
 poly4 = subsurf(poly3)
 
 draw(img, RGB(1,0,0), poly)
-#draw(img, RGB(0,1,0), poly4)
+draw(img, RGB(0,1,0), poly4)
 
 println("writing img")
 imwrite(img.data, "eckphbth.png")
