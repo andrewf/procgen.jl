@@ -1,68 +1,9 @@
 include("util.jl")
 
-img = makeImage(0, 0, 13, 11, 150)
+reload("noise.jl")
+using Noise
 
-println("size ", size(img.data))
-
-gridsize = (13, 11)
-
-function dp(a::(Float64, Float64), b::(Float64, Float64))
-    a[1]*b[1] + a[2]*b[2]
-end
-
-# Generate some default gradients
-numgrads = 12
-# short for unit point
-function up(f)
-    angle = f*2*pi/numgrads  # twelfths of the circle
-    (cos(angle), sin(angle))
-end
-grads = [i for i in 1:17]
-grads = shuffle(grads)
-grads = map(grads) do i
-    up(i)
-end
-
-# nice interpolation function
-function interp(x::Float64)
-    x*x*x*(6*x*x - 15*x + 10)
-end
-
-assert(interp(0.0) == 0.0)
-assert(interp(1.0) == 1.0)
-
-function get_gradient(x::Int, y::Int)
-    # mod them by the size to make them loop
-    # xor them to "hash" them
-    # mod by size of grad array
-    x = x % (gridsize[1] + 1)
-    y = y % (gridsize[2] + 1)
-    r = (x $ y) ^ 13
-    grads[ r % length(grads) + 1 ]
-end
-
-function noise(gradient::Function, gridspace::Number, x::Float64, y::Float64)
-    # divrem does the right thing for finding fractional part
-    xgrid, xrem = divrem(x, gridspace)  # lower grid coord, and fraction across the square
-    ygrid, yrem = divrem(y, gridspace)
-    xfrac, yfrac = xrem/gridspace, yrem/gridspace
-    xgrid = r(xgrid)
-    ygrid = r(ygrid)
-    # height, I guess, as dictated by each gradient
-    n_00 = dp(gradient(xgrid, ygrid), (xfrac, yfrac) )
-    n_10 = dp(gradient(xgrid+1, ygrid), (xfrac-1, yfrac) )
-    n_01 = dp(gradient(xgrid, ygrid+1), (xfrac, yfrac-1) )
-    n_11 = dp(gradient(xgrid+1, ygrid+1), (xfrac-1, yfrac-1) )
-    # now interp along each edge
-    n_x0 = n_00*(1-interp(xfrac)) + n_10*interp(xfrac)  # top edge
-    n_x1 = n_01*(1-interp(xfrac)) + n_11*interp(xfrac)  # bottom edge
-    # interp between top and bottom edges
-    n_final = n_x0*(1-interp(yfrac)) + n_x1*interp(yfrac)
-    # and actually that's it
-    # as long as all the vectors are unit vectors, this is true
-    assert(-1 <= n_final <= 1)
-    n_final
-end
+img = makeImage(0, 0, 13, 11, 50)
 
 function real_to_01(x)
     (atan(x) + pi/2)/pi
@@ -72,20 +13,21 @@ tan = RGB(0xe4/255, 0xce/255, 0x86/255)
 green = RGB(0x70/255, 0xaf/255, 0x00/255)
 brown = RGB(0x7e/255, 0x63/255, 0x1f/255)
 
+noisefn = (g, s, x, y) -> real_to_01(simplex(g, s, x, y))
+
 each_pixel(img) do x,y
     # pattern 1
-    n = noise(get_gradient, 1, x, y)*8/15
-    n += noise(get_gradient, .5, x, y)*4/15
-    n += noise(get_gradient, 0.25, x, y)*2/15
-    n += noise(get_gradient, 0.125, x, y)*1/15
-    r = (n+1)/2   # go from (-1,1) to (0,1)
+    n = noisefn(get_gradient, 1, x, y)*8/15
+    n += noisefn(get_gradient, .5, x, y)*4/15
+    n += noisefn(get_gradient, 0.25, x, y)*2/15
+    n += noisefn(get_gradient, 0.125, x, y)*1/15
+    r = n # (n+1)/2   # go from (-1,1) to (0,1)
     # pattern 2
-    m = noise(get_gradient, .7, x, y)*2/3
-    m += noise(get_gradient, .3, x, y)*1/3
-    m = (m+1)/2
-    if m > .6
+    m = noisefn(get_gradient, .7, x, y)*2/3
+    m += noisefn(get_gradient, .3, x, y)*1/3
+    if m > .62
         brown
-    elseif r > .5
+    elseif r > .53
         green
     else
         tan
@@ -95,23 +37,6 @@ end
 
 green = RGB(0, 1, 0)
 red = RGB(1, 0, 0)
-
-#for y in 1:gridsize[2]
-#    for x in 1:gridsize[1]
-#        start = (float(x*gridspace), float(y*gridspace))
-#        finish = start + get_gradient(x, y)
-#        start = u2px(img, start)
-#        finish = u2px(img, finish)
-#        naive_line(img, green, start[1],start[2], finish[1],finish[2])
-#        # four points at the grid point
-#        z, w = start
-#        plot(img, (z, w), red)
-#        plot(img, (z+1, w), red)
-#        plot(img, (z, w+1), red)
-#        plot(img, (z+1, w+1), red)
-#    end
-#end
-        
 
 imwrite(img.data, "perl.png")
     
