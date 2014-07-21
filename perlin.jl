@@ -1,6 +1,8 @@
 include("util.jl")
 
-img = makeImage(0, 0, 10, 10, 50)
+img = makeImage(0, 0, 13, 11, 150)
+
+println("size ", size(img.data))
 
 gridsize = (13, 11)
 
@@ -8,6 +10,7 @@ function dp(a::(Float64, Float64), b::(Float64, Float64))
     a[1]*b[1] + a[2]*b[2]
 end
 
+# Generate some default gradients
 numgrads = 12
 # short for unit point
 function up(f)
@@ -20,6 +23,7 @@ grads = map(grads) do i
     up(i)
 end
 
+# nice interpolation function
 function interp(x::Float64)
     x*x*x*(6*x*x - 15*x + 10)
 end
@@ -37,7 +41,7 @@ function get_gradient(x::Int, y::Int)
     grads[ r % length(grads) + 1 ]
 end
 
-function noise(gridspace, x::Float64, y::Float64)
+function noise(gradient::Function, gridspace::Number, x::Float64, y::Float64)
     # divrem does the right thing for finding fractional part
     xgrid, xrem = divrem(x, gridspace)  # lower grid coord, and fraction across the square
     ygrid, yrem = divrem(y, gridspace)
@@ -45,10 +49,10 @@ function noise(gridspace, x::Float64, y::Float64)
     xgrid = r(xgrid)
     ygrid = r(ygrid)
     # height, I guess, as dictated by each gradient
-    n_00 = dp(get_gradient(xgrid, ygrid), (xfrac, yfrac) )
-    n_10 = dp(get_gradient(xgrid+1, ygrid), (xfrac-1, yfrac) )
-    n_01 = dp(get_gradient(xgrid, ygrid+1), (xfrac, yfrac-1) )
-    n_11 = dp(get_gradient(xgrid+1, ygrid+1), (xfrac-1, yfrac-1) )
+    n_00 = dp(gradient(xgrid, ygrid), (xfrac, yfrac) )
+    n_10 = dp(gradient(xgrid+1, ygrid), (xfrac-1, yfrac) )
+    n_01 = dp(gradient(xgrid, ygrid+1), (xfrac, yfrac-1) )
+    n_11 = dp(gradient(xgrid+1, ygrid+1), (xfrac-1, yfrac-1) )
     # now interp along each edge
     n_x0 = n_00*(1-interp(xfrac)) + n_10*interp(xfrac)  # top edge
     n_x1 = n_01*(1-interp(xfrac)) + n_11*interp(xfrac)  # bottom edge
@@ -60,8 +64,6 @@ function noise(gridspace, x::Float64, y::Float64)
     n_final
 end
 
-img = makeImage(0, 0, 10, 10, 50)
-
 function real_to_01(x)
     (atan(x) + pi/2)/pi
 end
@@ -72,13 +74,14 @@ brown = RGB(0x7e/255, 0x63/255, 0x1f/255)
 
 each_pixel(img) do x,y
     # pattern 1
-    n = noise(1, x, y)*4/7
-    n += noise(.5, x, y)*2/7
-    n += noise(0.25, x, y)*1/7
+    n = noise(get_gradient, 1, x, y)*8/15
+    n += noise(get_gradient, .5, x, y)*4/15
+    n += noise(get_gradient, 0.25, x, y)*2/15
+    n += noise(get_gradient, 0.125, x, y)*1/15
     r = (n+1)/2   # go from (-1,1) to (0,1)
     # pattern 2
-    m = noise(.7, x, y)*2/3
-    m += noise(.3, x, y)*1/3
+    m = noise(get_gradient, .7, x, y)*2/3
+    m += noise(get_gradient, .3, x, y)*1/3
     m = (m+1)/2
     if m > .6
         brown
