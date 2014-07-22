@@ -1,6 +1,6 @@
 module Noise
 
-export perlin, simplex, get_gradient
+export perlin, simplex, valuenoise, get_gradient, default_get_value
 
 gridsize = (13, 11)
 grads = Array(Vector{Float64}, gridsize[2], gridsize[1])
@@ -29,6 +29,9 @@ function dp(a::Array{Float64, 1}, b::Array{Float64, 1})
     a[1]*b[1] + a[2]*b[2]
 end
 
+########################################
+# Perlin Noise
+########################################
 
 # nice interpolation function
 function interp(x::Float64)
@@ -60,6 +63,11 @@ function perlin(gradient::Function, gridspace::Number, x::Float64, y::Float64)
     assert(-1 <= n_final <= 1)
     n_final
 end
+
+
+########################################
+# Simplex Noise
+########################################
 
 # rows are images of (1,0) and (0,1) under transform
 # from gradient space to real space
@@ -121,6 +129,38 @@ function simplex(gradient::Function, sidelen::Number, x::Float64, y::Float64)
 end
 
 
+########################################
+# Value noise
+########################################
 
-
+# generate grid of random values in (0, 1)
+values = Array(Float64, gridsize[2], gridsize[1])
+for y in 1:gridsize[2]
+    for x in 1:gridsize[1]
+        values[y, x] = rand()
+    end
 end
+
+function default_get_value(x::Int64, y::Int64)
+    x = mod(x, gridsize[1]) + 1
+    y = mod(y, gridsize[2]) + 1
+    values[y,x]
+end
+
+function valuenoise(getvalue::Function, x::Float64, y::Float64)
+    xgrid = int(floor(x))
+    xfrac = x - xgrid
+    ygrid = int(floor(y))
+    yfrac = y - ygrid
+    h00 = getvalue(xgrid,   ygrid)
+    h10 = getvalue(xgrid+1, ygrid)
+    h01 = getvalue(xgrid,   ygrid+1)
+    h11 = getvalue(xgrid+1, ygrid+1)
+    hx0 = h00*interp(1-xfrac) + h10*interp(xfrac)
+    hx1 = h01*interp(1-xfrac) + h11*interp(xfrac)
+    h = hx0*interp(1-yfrac) + hx1*interp(yfrac)
+    h
+end
+
+
+end # module
