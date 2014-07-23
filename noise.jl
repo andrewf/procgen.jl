@@ -41,11 +41,10 @@ end
 assert(interp(0.0) == 0.0)
 assert(interp(1.0) == 1.0)
 
-function perlin(gradient::Function, gridspace::Number, x::Float64, y::Float64)
+function perlin(gradient::Function, x::Float64, y::Float64)
     # divrem does the right thing for finding fractional part
-    xgrid, xrem = divrem(x, gridspace)  # lower grid coord, and fraction across the square
-    ygrid, yrem = divrem(y, gridspace)
-    xfrac, yfrac = xrem/gridspace, yrem/gridspace
+    xgrid, xfrac = divrem(x, 1)  # lower grid coord, and fraction across the square
+    ygrid, yfrac = divrem(y, 1)
     xgrid = r(xgrid)
     ygrid = r(ygrid)
     # height, I guess, as dictated by each gradient
@@ -83,11 +82,10 @@ to_square_space, to_real_space = let l = sqrt(2)/sqrt(3), theta = pi/12
     to_square_space, to_real_space
 end
 
-function simplex(gradient::Function, sidelen::Number, x::Float64, y::Float64)
+function simplex(gradient::Function, x::Float64, y::Float64)
     # to figure out which corners to combine, we need to project everything
     # into space where simplices are squished into manageable squares
     P = [x; y]
-    P = P*(1/sidelen)
     # from here, we can assume distance between squares in square space is 1
     P_squares = to_square_space*P  # side = 1
     # the grid square in which P resides
@@ -100,10 +98,9 @@ function simplex(gradient::Function, sidelen::Number, x::Float64, y::Float64)
         cell_origin + [1, 0]
     end
     # now, get them all back into real space by mul'ing them by inv matrix
-    # and scaling them by sidelen
     corners = (cell_origin, middle_corner, opposite_corner)
     corners = map(corners) do corner
-        sidelen*(to_real_space*corner), gradient(corner[1], corner[2])
+        to_real_space*corner, gradient(corner[1], corner[2])
     end
     # corners :: [(point, gradient)]
     # find contributions
@@ -111,7 +108,7 @@ function simplex(gradient::Function, sidelen::Number, x::Float64, y::Float64)
         #corner, grad = tup
         corner = tup[1]
         grad = tup[2]
-        dist = ([x;y] - corner)/sidelen
+        dist = ([x;y] - corner)
         height = dp(dist, grad)
         # now attenuate it, somehow
         # I don't know how this works. It looks like the 0.7

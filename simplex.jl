@@ -1,13 +1,13 @@
 include("util.jl")
 
-require("noise.jl")
+reload("noise.jl")
 using Noise
 
 function real_to_01(x)
     (atan(x) + pi/2)/pi
 end
 
-img = makeImage(0, 0, 5, 5, 100)
+img = makeImage(0, 0, 5, 5, 80)
 
 red = RGB(1,0,0)
 green = RGB(0,1,0)
@@ -21,16 +21,16 @@ function rplus_to_01(x)
 end
 
 each_pixel(img) do x,y
-    n = simplex(get_gradient, 1, x, y)
-    n += simplex(get_gradient, .5, x, y)/2
-    n += simplex(get_gradient, .25, x, y)/4
-    n += simplex(get_gradient, .125, x, y)/8
+    n = simplex(get_gradient, x, y)
+    n += simplex(get_gradient, 2x, 2y)/2
+    n += simplex(get_gradient, 4x, 4y)/4
+    n += simplex(get_gradient, 4x, 8y)/8
     #n = abs(n)
     global minVal, maxVal
     minVal = min(minVal, n)
     maxVal = max(maxVal, n)
     r = real_to_01(n)
-    RGB(r,r,1)
+    RGB(r,r,r)
 end
 
 imwrite(img.data, "simplex.png")
