@@ -1,6 +1,6 @@
 module Noise
 
-export perlin, simplex, valuenoise, get_gradient, default_get_value
+export perlin, simplex, valuenoise, get_gradient, default_get_value, octaves
 
 gridsize = (13, 11)
 grads = Array(Vector{Float64}, gridsize[2], gridsize[1])
@@ -158,6 +158,25 @@ function valuenoise(getvalue::Function, x::Float64, y::Float64)
     h = hx0*interp(1-yfrac) + hx1*interp(yfrac)
     h
 end
+
+########################################
+# Misc
+########################################
+
+
+function octaves(noisefn::Function, n::Int, initial_scale::Float64, x::Float64, y::Float64)
+    k = initial_scale
+    denom = 2^n - 1
+    num = 2^(n-1)
+    noise = 0
+    for i in 1:n
+        noise += noisefn(k*x,k*y)*num/denom
+        num = num/2
+        k = k*2
+    end
+    noise
+end
+
 
 
 end # module

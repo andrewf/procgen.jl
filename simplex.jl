@@ -20,11 +20,12 @@ function rplus_to_01(x)
     1/(x+1)
 end
 
+function thisnoise(x, y)
+    simplex(get_gradient, x, y)
+end
+
 each_pixel(img) do x,y
-    n = simplex(get_gradient, x, y)
-    n += simplex(get_gradient, 2x, 2y)/2
-    n += simplex(get_gradient, 4x, 4y)/4
-    n += simplex(get_gradient, 4x, 8y)/8
+    n = octaves(thisnoise, 4, 1.0, x, y)
     #n = abs(n)
     global minVal, maxVal
     minVal = min(minVal, n)
