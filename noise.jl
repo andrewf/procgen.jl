@@ -43,14 +43,18 @@ assert(interp(1.0) == 1.0)
 
 function perlin(gradient::Function, x::Float64, y::Float64)
     # divrem does the right thing for finding fractional part
-    xgrid, xfrac = divrem(x, 1)  # lower grid coord, and fraction across the square
-    ygrid, yfrac = divrem(y, 1)
+    xgrid = floor(x)  # lower grid coord, and fraction across the square
+    ygrid = floor(y)
+    xfrac = x - xgrid
+    yfrac = y - ygrid
+    assert(0 <= xfrac <= 1)
+    assert(0 <= yfrac <= 1)
     xgrid = r(xgrid)
     ygrid = r(ygrid)
     # height, I guess, as dictated by each gradient
-    n_00 = dp(gradient(xgrid, ygrid), [xfrac, yfrac] )
-    n_10 = dp(gradient(xgrid+1, ygrid), [xfrac-1, yfrac] )
-    n_01 = dp(gradient(xgrid, ygrid+1), [xfrac, yfrac-1] )
+    n_00 = dp(gradient(xgrid,   ygrid),   [xfrac,   yfrac] )
+    n_10 = dp(gradient(xgrid+1, ygrid),   [xfrac-1, yfrac] )
+    n_01 = dp(gradient(xgrid,   ygrid+1), [xfrac,   yfrac-1] )
     n_11 = dp(gradient(xgrid+1, ygrid+1), [xfrac-1, yfrac-1] )
     # now interp along each edge
     n_x0 = n_00*(1-interp(xfrac)) + n_10*interp(xfrac)  # top edge
@@ -58,8 +62,6 @@ function perlin(gradient::Function, x::Float64, y::Float64)
     # interp between top and bottom edges
     n_final = n_x0*(1-interp(yfrac)) + n_x1*interp(yfrac)
     # and actually that's it
-    # as long as all the vectors are unit vectors, this is true
-    assert(-1 <= n_final <= 1)
     n_final
 end
 

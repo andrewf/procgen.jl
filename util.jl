@@ -3,13 +3,15 @@ using Color
 
 r = x -> int(round(x))
 
-function +(a::(Number, Number), b::(Number, Number))
-    (a[1] + b[1], a[2] + b[2])
+function rplus_to_01(x)
+    1/(x+1)
 end
 
-function -(a::(Number, Number), b::(Number, Number))
-    (a[1] - b[1], a[2] - b[2])
+function real_to_01(x)
+    # we scale atan to get derivative at 0 = 1
+    (atan(pi*x) + pi/2)/pi
 end
+
 
 type Polygon
     points :: Array{(Float64, Float64),1}
