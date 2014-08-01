@@ -1,17 +1,12 @@
 using Images
 using Color
 
-r = x -> int(round(x))
+r(x) = int(round(x))
 
-function rplus_to_01(x)
-    1/(x+1)
-end
+rplus_to_01(x) = 1 - exp(-x)
 
-function real_to_01(x)
-    # we scale atan to get derivative at 0 = 1
-    (atan(pi*x) + pi/2)/pi
-end
-
+# we scale atan to get derivative at 0 = 1
+real_to_01(x) = (atan(pi*x) + pi/2)/pi
 
 type Polygon
     points :: Array{(Float64, Float64),1}
@@ -72,6 +67,12 @@ function makeImage(top, left, w, h, res)
     data = Array(RGB, pxh, pxw)
     fill!(data, RGB(1,1,1))
     CoordImage(data, (top, left), (w, h), res)
+end
+
+function render_by_pixels(fn, name, top, left, w, h, res)
+    img = makeImage(top, left, w, h, res)
+    each_pixel(fn, img)
+    imwrite(img.data, "$name.png")
 end
 
 function each_edge(pairfn, p::Polygon)
