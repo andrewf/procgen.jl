@@ -41,7 +41,7 @@ function plot(img::CoordImage, pt::(Int64, Int64), color)
 end
 
 function plot(img::CoordImage, pt::(Float64, Float64), color)
-    pt = u2px(pt)
+    pt = u2px(img, pt)
     plot(img, pt, color)
 end
 
