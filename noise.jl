@@ -171,8 +171,8 @@ function octaves(noisefn::Function,
                  initial_scale::Float64,
                  x::Float64, y::Float64)
     k = initial_scale
-    denom = 2^n - 1
-    num = 2^(n-1)
+    denom = 2^num_octaves - 1
+    num = 2^(num_octaves-1)
     noise = 0
     for i in 1:num_octaves
         noise += noisefn(k*x,k*y)*num/denom
