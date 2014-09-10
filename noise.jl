@@ -42,7 +42,6 @@ assert(interp(0.0) == 0.0)
 assert(interp(1.0) == 1.0)
 
 function perlin(gradient::Function, x::Float64, y::Float64)
-    # divrem does the right thing for finding fractional part
     xgrid = floor(x)  # lower grid coord, and fraction across the square
     ygrid = floor(y)
     xfrac = x - xgrid

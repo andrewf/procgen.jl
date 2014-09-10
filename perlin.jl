@@ -13,7 +13,9 @@ brown = RGB(0x7e/255, 0x63/255, 0x1f/255)
 
 noisefn = (x, y) -> perlin(get_gradient, x, y)
 
-render_by_pixels("perl", 0,0, 5,5, 200) do x,y
+minr, maxr = 0, 0
+
+render_by_pixels("perl", 0,0, 5,5, 100) do x,y
     ## pattern 1
     #n = octaves(noisefn, 5, 1., x, y)
     #r = real_to_01(n)   # go from (-1,1) to (0,1)
@@ -28,6 +30,11 @@ render_by_pixels("perl", 0,0, 5,5, 200) do x,y
     #    tan
     #end
     r = noisefn(x, y)
+    global minr, maxr
+    minr = min(r, minr)
+    maxr = max(r, maxr)
+    r = r + 1/2
     RGB(r,r,r)
 end
 
+println("range ", minr, "   ", maxr)
