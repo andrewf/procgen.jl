@@ -1,6 +1,6 @@
 include("util.jl")
 
-img = makeImage(-3,0, 6,10, 200)
+img = makeImage(-3,0, 6,10, 100)
 
 halfer = [1/2 0; 0 1/2]
 
@@ -15,6 +15,13 @@ barnsley = [
     (0.73, x -> [.85 .04; -.04 .85]*x + [0; 1.6]),
     (0.13, x -> [-.15 .28; .26 .24]*x + [0; .44]),
     (0.11, x -> [0.2 -.26; .23 .22]*x + [0; 1.6])
+]
+
+wat = [
+    (.02, x->[0 0;0 .25]*x + [0;-.14]),
+    (.84, x->[.85 .02; -.02 .83]*x + [0; 1]),
+    (.07, x->[.09 -.28;.3 .11]*x + [0;.6]),
+    (.07, x->[-.09 .28; .3 .09]*x + [0;.7])
 ]
 
 trans = barnsley
@@ -45,7 +52,7 @@ for i in range(1,1000000)
     x = t(x)
     if i > 100  # this is supposedly important
         # plot the point
-        plot(img, tuple(x...), RGB(0,0,0))
+        plot(img, tuple(x...), RGB(0,.8,0))
     end
 end
 
