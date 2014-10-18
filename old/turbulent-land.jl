@@ -11,10 +11,7 @@ darkgreen = RGB(0x71/255, 0x9d/255, 0x24/255)
 water = RGB(.35,.35,1)
 
 each_pixel(img) do x,y
-    turb = abs(simplex(get_gradient, 1, x, y)*8/15)
-    turb += abs(simplex(get_gradient, .5, x, y)*4/15)
-    turb += abs(simplex(get_gradient, .25, x, y)*2/15)
-    turb += abs(simplex(get_gradient, .125, x, y)*1/15)
+    turb = octaves((x,y)->simplex(get_gradient, x, y), 4, x, y)
     r = (sin(sqrt(x*x + y*y) +4*turb)+1)/2
     #RGB(r,r,r)
     if r > .5
