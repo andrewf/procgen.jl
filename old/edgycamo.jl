@@ -16,9 +16,8 @@ function thisnoise(x, y)
 end
 
 render_by_pixels("simplex", 0, 0, 4, 4, 100) do x,y
-    #nx = 2*octaves((x,y)->abs(2*perlin(get_gradient, x, y)), 4, 1.0, x, y)
-    v = octaves(thisnoise, 5, x, y)
-    s = octaves(thisnoise, 2, x+1.5, y+1.5)
+    v = octaves(thisnoise, 5, x, y)  # main pattern
+    s = octaves(thisnoise, 2, x+1.5, y+1.5)  # edge width
     s = max(s, 0) * 0.3
     # v is still in reals, not [0,1]
     if -s < v && v < s 
