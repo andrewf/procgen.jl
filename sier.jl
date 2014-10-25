@@ -1,6 +1,6 @@
 include("util.jl")
 
-img = makeImage(-3,0, 6,10, 100)
+img = makeImage(-1,-1, 3,3, 400)
 
 halfer = [1/2 0; 0 1/2]
 
@@ -17,6 +17,11 @@ barnsley = [
     x -> [0.2 -.26; .23 .22]*x + [0; 1.6]
 ]
 
+heighway = [
+    x -> 1/sqrt(2)*[cos(pi/4) -sin(pi/4); sin(pi/4) cos(pi/4)]*x,
+    x -> 1/sqrt(2)*[cos(3pi/4) -sin(3pi/4); sin(3pi/4) cos(3pi/4)]*x + [1; 0]
+]
+
 function choose_probs(fns)
     map(fns) do f
         # choose weight based on area of image of unit square under f
@@ -29,7 +34,7 @@ function choose_probs(fns)
     end
 end
 
-function render_ifs(img, fns)
+function render_ifs(img, color, fns)
     probs = map(first, fns)
     partial_total_probs = Float64[]
     total_p = 0
@@ -54,12 +59,12 @@ function render_ifs(img, fns)
         x = t(x)
         if i > 100  # this is supposedly important
             # plot the point
-            plot(img, tuple(x...), RGB(0,.8,0))
+            plot(img, tuple(x...), color)
         end
     end
 end
 
-render_ifs(img, choose_probs(barnsley))
+render_ifs(img, RGB(0, .0, .0), choose_probs(heighway))
 
 imwrite(img.data, "ifs.png")
 
