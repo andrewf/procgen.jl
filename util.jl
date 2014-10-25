@@ -12,6 +12,18 @@ type Polygon
     points :: Array{(Float64, Float64),1}
 end
 
+function area(p::Polygon)
+    # shoelace algorithm
+    total = 0.0
+    n = length(p.points)
+    for i in range(1,n)
+        prev = if i == 1 n else i-1 end
+        next = if i == n 1 else i+1 end
+        total += p.points[i][1]*(p.points[next][2] - p.points[prev][2])
+    end
+    0.5*abs(total)
+end
+
 type CoordImage
     data :: Array{RGB, 2}
     top :: (Float64, Float64)
