@@ -28,13 +28,13 @@ barnsley_raw = [
 barnsley_auto = map(barnsley_raw) do f
     # choose weight based on area of image of unit square under f
     a = tuple(f([0;0])...)
-    b = tuple(f([5;0])...)
-    c = tuple(f([5;5])...)
-    d = tuple(f([0;5])...)
+    b = tuple(f([1;0])...)
+    c = tuple(f([1;1])...)
+    d = tuple(f([0;1])...)
     p = Polygon([a,b,c,d])
     println("points ", p.points)
     println("area ", area(p))
-    (max(area(p), .05), f)
+    (max(area(p), .03), f)
 end
 
 trans = barnsley_auto
