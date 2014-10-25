@@ -17,14 +17,27 @@ barnsley = [
     (0.11, x -> [0.2 -.26; .23 .22]*x + [0; 1.6])
 ]
 
-wat = [
-    (.02, x->[0 0;0 .25]*x + [0;-.14]),
-    (.84, x->[.85 .02; -.02 .83]*x + [0; 1]),
-    (.07, x->[.09 -.28;.3 .11]*x + [0;.6]),
-    (.07, x->[-.09 .28; .3 .09]*x + [0;.7])
+
+barnsley_raw = [
+    x -> [0 0; 0 .16]*x,
+    x -> [.85 .04; -.04 .85]*x + [0; 1.6],
+    x -> [-.15 .28; .26 .24]*x + [0; .44],
+    x -> [0.2 -.26; .23 .22]*x + [0; 1.6]
 ]
 
-trans = barnsley
+barnsley_auto = map(barnsley_raw) do f
+    # choose weight based on area of image of unit square under f
+    a = tuple(f([0;0])...)
+    b = tuple(f([5;0])...)
+    c = tuple(f([5;5])...)
+    d = tuple(f([0;5])...)
+    p = Polygon([a,b,c,d])
+    println("points ", p.points)
+    println("area ", area(p))
+    (max(area(p), .05), f)
+end
+
+trans = barnsley_auto
 probs = map(first, trans)
 
 partial_total_probs = Float64[]
