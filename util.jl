@@ -95,7 +95,7 @@ function each_edge(pairfn, p::Polygon)
     end
 end
 
-function naive_line(img, color, x1::Int64, y1::Int64, x2::Int64, y2::Int64)
+function naive_line(img::CoordImage, color, x1::Int64, y1::Int64, x2::Int64, y2::Int64)
     xdiff = abs(x1 - x2)
     ydiff = abs(y1 - y2)
     start = (x1, y1)
