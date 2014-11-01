@@ -1,6 +1,6 @@
 include("util.jl")
 
-img = makeImage(-2, -2, 4, 5, 100)
+img = makeImage(-2, -2, 4, 6, 100)
 
 type Aff
     linear::Array{Float64, 2} # a 2x2 matrix
@@ -18,6 +18,10 @@ end
 function rot2(theta)
     [cos(theta) -sin(theta);
      sin(theta)  cos(theta)]
+end
+
+function scale(s::Float64)
+    [s 0; 0 s]
 end
 
 function translate(v::Array{Float64,1})
@@ -60,28 +64,65 @@ function draw(t::Turtle, img, v::Array{Float64, 1})
     p1 = u2px(img, (p1[1], p1[2]))
     p2 = u2px(img, (p2[1], p2[2]))
     move(t, translate(v))
-    println("draw from ", p1, " to ", p2)
     naive_line(img, RGB(0,0,0),
                 p1[1], p1[2],
                 p2[1], p2[2])
 end
 
+function ugly(t::Turtle, depth::Int)
+    draw(t, img, [0;1.])
+    if depth < 10
+        # left branch
+        push(t)
+        move(t, Aff(scale(.6)*rot2(-pi/4), [0;0]))
+        lsys(t, depth+1)
+        pop(t)
+        # right branch
+        push(t)
+        move(t, Aff(scale(.7)*rot2(pi/8), [0;0]))
+        lsys(t, depth+1)
+        pop(t)
+    end
+    pop(t)
+end
+
+ang = 25*pi/180
+
+# meh
+function planty(t::Turtle, depth::Int)
+    fwd = [0;.3]
+    push(t)
+    move(t, Aff(scale(1.), [0;0]))
+    draw(t,img,fwd)
+    if depth < 5
+        draw(t,img,fwd)
+        move(t, Aff(rot2(-ang),[0;0]))
+        push(t)
+        push(t)
+        planty(t, depth+1)
+        pop(t)
+        move(t, Aff(rot2(ang),[0;0]))
+        planty(t, depth+1)
+        pop(t)
+        move(t, Aff(rot2(ang),[0;0]))
+        draw(t,img,fwd)
+        push(t)
+        move(t, Aff(rot2(ang),[0;0]))
+        draw(t,img,fwd)
+        planty(t, depth+1)
+        pop(t)
+        move(t, Aff(rot2(-ang),[0;0]))
+        planty(t, depth+1)
+    end
+    pop(t)
+end
+
+
+
+
 t = Turtle([Aff([1 0;0 1],[0;0])])
-draw(t, img, [0.;1.])
-push(t)
-move(t, Aff(rot2(pi/8), [0; 1]))
-draw(t, img, [0.;1.])
-pop(t)
-move(t, Aff(rot2(-pi/8), [0;0]))
-draw(t, img, [0.;1.])
 
-#draw(t, img, Aff([1 0; 0 1],[0.;1.]))
-#draw(t, img, Aff([1 0; 0 1],[0.;1.]))
-
-println("turtle ", t)
-
-#naive_line(img, RGB(0,1,0), 1,-100, 0,100)
-#naive_line(img, RGB(0,1,0), -100,1, 100,0)
+planty(t, 1)
 
 p = Polygon([(-.5,.5),(.5,.5),(.5,-.5),(-.5,-.5)])
 draw(img, RGB(1,0,0), p)
