@@ -80,7 +80,7 @@ function planty_grammar(original)
     ret
 end
 
-img = makeImage(-2, -4, 4, 6, 100)
+img = makeImage(-2, -5, 6, 6, 100)
 t = makeTurtle(img)
 
 #planty(t, 1)
@@ -93,7 +93,9 @@ s = planty_grammar(s)
 s = planty_grammar(s)
 s = planty_grammar(s)
 
-fwd = [0; -.02]
+fwd = [0; -.04]
+
+move(t, translate([0.0; 2.]))
 
 for c in s
     if c == 'F'
