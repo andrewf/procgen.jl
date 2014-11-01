@@ -1,18 +1,17 @@
 include("util.jl")
 
-img = makeImage(-2, -2, 4, 6, 100)
-
-type Aff
+# Affine transformations and helper functions
+type Affine
     linear::Array{Float64, 2} # a 2x2 matrix
     trans::Array{Float64, 1} # 2x1 matrix
 end
 
-function apply(f::Aff, x::Array{Float64, 1})
+function apply(f::Affine, x::Array{Float64, 1})
     f.linear*x + f.trans
 end
 
-function compose(f::Aff, g::Aff)
-    Aff(f.linear*g.linear, f.linear*g.trans + f.trans)
+function compose(f::Affine, g::Affine)
+    Affine(f.linear*g.linear, f.linear*g.trans + f.trans)
 end
 
 function rot2(theta)
@@ -25,12 +24,18 @@ function scale(s::Float64)
 end
 
 function translate(v::Array{Float64,1})
-    Aff([1 0; 0 1], v)
+    Affine([1 0; 0 1], v)
 end
 
+# turtle graphics
 # the location of the turtle is apply(last(stack), [0;1])
 type Turtle
-    stack :: Array{Aff}
+    stack :: Array{Affine}
+    img :: CoordImage
+end
+
+function makeTurtle(img:: CoordImage)
+    Turtle([Affine([1.0 0; 0 1.], [0; 0])], img)
 end
 
 function push(t::Turtle)
@@ -48,14 +53,12 @@ function curr_f(t::Turtle)
 end
 
 # move the transform cursor through f
-function move(t::Turtle, f::Aff)
+function move(t::Turtle, f::Affine)
     l = length(t.stack)
     t.stack[l] = compose(curr_f(t), f)
 end
 
-j = [0.; 1.]
-
-function draw(t::Turtle, img, v::Array{Float64, 1})
+function draw(t::Turtle, v::Array{Float64, 1})
     # v is a vector in the coord space defined by current transform
     z = [0.; 0.]
     # first point is f(0), second is f(v)
@@ -64,7 +67,7 @@ function draw(t::Turtle, img, v::Array{Float64, 1})
     p1 = u2px(img, (p1[1], p1[2]))
     p2 = u2px(img, (p2[1], p2[2]))
     move(t, translate(v))
-    naive_line(img, RGB(0,0,0),
+    naive_line(t.img, RGB(0,0,0),
                 p1[1], p1[2],
                 p2[1], p2[2])
 end
@@ -74,12 +77,12 @@ function ugly(t::Turtle, depth::Int)
     if depth < 10
         # left branch
         push(t)
-        move(t, Aff(scale(.6)*rot2(-pi/4), [0;0]))
+        move(t, Affine(scale(.6)*rot2(-pi/4), [0;0]))
         lsys(t, depth+1)
         pop(t)
         # right branch
         push(t)
-        move(t, Aff(scale(.7)*rot2(pi/8), [0;0]))
+        move(t, Affine(scale(.7)*rot2(pi/8), [0;0]))
         lsys(t, depth+1)
         pop(t)
     end
@@ -92,26 +95,26 @@ ang = 25*pi/180
 function planty(t::Turtle, depth::Int)
     fwd = [0;.3]
     push(t)
-    move(t, Aff(scale(1.), [0;0]))
-    draw(t,img,fwd)
+    move(t, Affine(scale(1.), [0;0]))
+    draw(t,fwd)
     if depth < 5
-        draw(t,img,fwd)
-        move(t, Aff(rot2(-ang),[0;0]))
+        draw(t,fwd)
+        move(t, Affine(rot2(-ang),[0;0]))
         push(t)
         push(t)
         planty(t, depth+1)
         pop(t)
-        move(t, Aff(rot2(ang),[0;0]))
+        move(t, Affine(rot2(ang),[0;0]))
         planty(t, depth+1)
         pop(t)
-        move(t, Aff(rot2(ang),[0;0]))
-        draw(t,img,fwd)
+        move(t, Affine(rot2(ang),[0;0]))
+        draw(t,fwd)
         push(t)
-        move(t, Aff(rot2(ang),[0;0]))
-        draw(t,img,fwd)
+        move(t, Affine(rot2(ang),[0;0]))
+        draw(t,fwd)
         planty(t, depth+1)
         pop(t)
-        move(t, Aff(rot2(-ang),[0;0]))
+        move(t, Affine(rot2(-ang),[0;0]))
         planty(t, depth+1)
     end
     pop(t)
@@ -120,7 +123,8 @@ end
 
 
 
-t = Turtle([Aff([1 0;0 1],[0;0])])
+img = makeImage(-2, -2, 4, 6, 100)
+t = makeTurtle(img)
 
 planty(t, 1)
 
