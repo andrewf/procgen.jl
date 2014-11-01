@@ -48,10 +48,67 @@ function planty(t::Turtle, depth::Int)
     pop(t)
 end
 
-img = makeImage(-2, -2, 4, 6, 100)
+function planty_grammar(original)
+    ret :: Vector{Char} = []
+    for c in original
+        if c == 'F'
+            push!(ret, 'F')
+            push!(ret, 'F')
+        elseif c == 'X'
+            push!(ret, 'F')
+            push!(ret, '-')
+            push!(ret, '[')
+            push!(ret, '[')
+            push!(ret, 'X')
+            push!(ret, ']')
+            push!(ret, '+')
+            push!(ret, 'X')
+            push!(ret, ']')
+            push!(ret, '+')
+            push!(ret, 'F')
+            push!(ret, '[')
+            push!(ret, '+')
+            push!(ret, 'F')
+            push!(ret, 'X')
+            push!(ret, ']')
+            push!(ret, '-')
+            push!(ret, 'X')
+        else
+            push!(ret, c)
+        end
+    end
+    ret
+end
+
+img = makeImage(-2, -4, 4, 6, 100)
 t = makeTurtle(img)
 
-planty(t, 1)
+#planty(t, 1)
+
+s = ['X']
+s = planty_grammar(s)
+s = planty_grammar(s)
+s = planty_grammar(s)
+s = planty_grammar(s)
+s = planty_grammar(s)
+s = planty_grammar(s)
+
+fwd = [0; -.02]
+
+for c in s
+    if c == 'F'
+        draw(t, fwd)
+    elseif c == '+'
+        move(t, Affine(rot2(+ang),[0;0]))
+    elseif c == '-'
+        move(t, Affine(rot2(-ang),[0;0]))
+    elseif c == '['
+        push(t)
+    elseif c == ']'
+        pop(t)
+    end
+end
+        
 
 p = Polygon([(-.5,.5),(.5,.5),(.5,-.5),(-.5,-.5)])
 draw(img, RGB(1,0,0), p)
