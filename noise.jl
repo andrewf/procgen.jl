@@ -1,6 +1,6 @@
 module Noise
 
-export perlin, simplex, valuenoise, get_gradient, default_get_value, octaves
+export perlin, simplex, valuenoise, get_gradient, default_get_value, octaves, noise_sum
 
 gridsize = (13, 11)
 grads = Array(Vector{Float64}, gridsize[2], gridsize[1])
@@ -164,22 +164,33 @@ end
 # Misc
 ########################################
 
-
-function octaves(noisefn::Function,
-                 num_octaves::Int,
-                 x::Float64, y::Float64)
-    k = 1
-    denom = 2^num_octaves - 1
-    num = 2^(num_octaves-1)
+function noise_sum(noisefn::Function,
+                num_layers::Int,
+                amplitude_divisor::Float64,  # how fast the amplitude of layers falls off, >1
+                freq_multiplier::Float64,  # aka lacunarity, >1
+                x::Float64, y::Float64)
+    # num_layers is the layers of noise that will be added
+    # it determines the amplitudes of each layer, also
+    # the multiplier
+    f = 1
+    n = num_layers
+    denom = (1-amplitude_divisor^n)/(1-amplitude_divisor)
+    num = amplitude_divisor^(n-1)
     noise = 0
-    for i in 1:num_octaves
-        noise += noisefn(k*x,k*y)*num/denom
-        num = num/2
-        k = k*2
+    mul = num/denom
+    for i in 1:num_layers
+        noise += noisefn(f*x, f*y)*mul
+        mul = mul / amplitude_divisor
+        f = f*freq_multiplier
     end
     noise
 end
 
+function octaves(noisefn::Function,
+                 num_octaves::Int,
+                 x::Float64, y::Float64)
+    noise_sum(noisefn, num_octaves, 2.0, 2.0, x, y)
+end
 
 
 end # module
