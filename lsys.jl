@@ -1,5 +1,5 @@
 using TurtleGraphics
-import Color.RGB
+using Draw
 import Images.imwrite
 using Util
 

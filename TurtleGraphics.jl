@@ -1,36 +1,8 @@
 module TurtleGraphics
-import Color.RGB
+using Draw
 using Util
 
-export Turtle, makeTurtle, push, pop, move, draw, Affine, rot2, scale, compose, translate
-
-# Affine transformations and helper functions
-type Affine
-    linear::Array{Float64, 2} # a 2x2 matrix
-    trans::Array{Float64, 1} # 2x1 matrix
-end
-
-function apply(f::Affine, x::Array{Float64, 1})
-    f.linear*x + f.trans
-end
-
-function compose(f::Affine, g::Affine)
-    Affine(f.linear*g.linear, f.linear*g.trans + f.trans)
-end
-
-function rot2(theta)
-    [cos(theta) -sin(theta);
-     sin(theta)  cos(theta)]
-end
-
-function scale(s::Float64)
-    [s 0; 0 s]
-end
-
-function translate(v::Array{Float64,1})
-    Affine([1 0; 0 1], v)
-end
-
+export Turtle, makeTurtle, push, pop, move, draw
 # turtle graphics
 # the location of the turtle is apply(last(stack), [0;1])
 type Turtle

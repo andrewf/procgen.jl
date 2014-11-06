@@ -1,5 +1,5 @@
 using Util
-import Color.RGB
+using Draw
 using Noise
 
 red = RGB(1,0,0)

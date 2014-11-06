@@ -1,8 +1,10 @@
-include("util.jl")
+using Util
+using Draw
+import Images.imwrite
 
 img = makeImage(-1,-1, 3,3, 400)
 
-halfer = [1/2 0; 0 1/2]
+halfer = scale(.5)
 
 sierpinski = [
     (x -> halfer*x),
@@ -25,12 +27,12 @@ heighway = [
 function choose_probs(fns)
     map(fns) do f
         # choose weight based on area of image of unit square under f
-        a = tuple(f([0;0])...)
-        b = tuple(f([1;0])...)
-        c = tuple(f([1;1])...)
-        d = tuple(f([0;1])...)
-        p = Polygon([a,b,c,d])
-        (max(area(p), .03), f)
+        a = f([0;0])
+        b = f([1;0])
+        c = f([1;1])
+        d = f([0;1])
+        p = cat(2, a, b, c, d)
+        (max(area(p), .03), f)  # we don't want area to be 0
     end
 end
 
@@ -59,7 +61,7 @@ function render_ifs(img, color, fns)
         x = t(x)
         if i > 100  # this is supposedly important
             # plot the point
-            plot(img, tuple(x...), color)
+            plot(img, x, color)
         end
     end
 end
