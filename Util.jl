@@ -1,5 +1,9 @@
+module Util
+
 using Images
 using Color
+
+export r, rplus_to_01, real_to_01, CoordImage, makeImage, u2px, px2u, plot, dot, each_pixel, render_by_pixels, naive_line, Polygon, area, draw, each_edge, subsurf
 
 r(x) = int(round(x))
 
@@ -164,4 +168,9 @@ function subsurf(poly)
     end
     return new_points
 end
+
+end  # module Util
+
+
+
 

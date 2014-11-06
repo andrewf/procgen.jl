@@ -166,8 +166,8 @@ end
 
 function noise_sum(noisefn::Function,
                 num_layers::Int,
-                amplitude_divisor::Float64,  # how fast the amplitude of layers falls off, >1
-                freq_multiplier::Float64,  # aka lacunarity, >1
+                amplitude_divisor::Number,  # how fast the amplitude of layers falls off, >1
+                freq_multiplier::Number,  # aka lacunarity, >1
                 x::Float64, y::Float64)
     # num_layers is the layers of noise that will be added
     # it determines the amplitudes of each layer, also

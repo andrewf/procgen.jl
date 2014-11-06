@@ -1,6 +1,5 @@
-include("util.jl")
-
-reload("noise.jl")
+using Util
+import Color.RGB
 using Noise
 
 red = RGB(1,0,0)
@@ -16,7 +15,7 @@ function thisnoise(x, y)
 end
 
 render_by_pixels("simplex", 0, 0, 4, 4, 100) do x,y
-    v = octaves(thisnoise, 5, x, y)  # main pattern
+    v = noise_sum(thisnoise, 4, 1.7, 2.5, x, y)  # main pattern
     s = octaves(thisnoise, 2, x+1.5, y+1.5)  # edge width
     s = max(s, 0) * 0.3
     # v is still in reals, not [0,1]

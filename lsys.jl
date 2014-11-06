@@ -1,4 +1,7 @@
-include("turtle.jl")
+using TurtleGraphics
+import Color.RGB
+import Images.imwrite
+using Util
 
 function ugly(t::Turtle, depth::Int)
     draw(t, img, [0;1.])
@@ -101,7 +104,7 @@ move(t, Affine(rot2(+ang),[0;0]))
 
 for c in s
     if c == 'F'
-        draw(t, fwd)
+        TurtleGraphics.draw(t, fwd)
     elseif c == '+'
         move(t, Affine(rot2(+ang),[0;0]))
     elseif c == '-'
@@ -112,9 +115,10 @@ for c in s
         pop(t)
     end
 end
-        
 
-p = Polygon([(-.5,.5),(.5,.5),(.5,-.5),(-.5,-.5)])
+
+#p = Polygon([(-.5,.5),(.5,.5),(.5,-.5),(-.5,-.5)])
+p = transpose([-.5 .5; .5 .5; .5 -.5; -.5 -.5])
 draw(img, RGB(1,0,0), p)
 
 imwrite(img.data, "turtle.png")

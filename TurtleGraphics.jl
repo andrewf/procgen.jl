@@ -1,4 +1,8 @@
-include("util.jl")
+module TurtleGraphics
+import Color.RGB
+using Util
+
+export Turtle, makeTurtle, push, pop, move, draw, Affine, rot2, scale, compose, translate
 
 # Affine transformations and helper functions
 type Affine
@@ -64,10 +68,10 @@ function draw(t::Turtle, v::Array{Float64, 1})
     # first point is f(0), second is f(v)
     p1 = apply(curr_f(t), z)
     p2 = apply(curr_f(t), v)
-    p1 = u2px(img, (p1[1], p1[2]))
-    p2 = u2px(img, (p2[1], p2[2]))
+    p1 = u2px(t.img, p1)
+    p2 = u2px(t.img, p2)
     move(t, translate(v))
-    naive_line(t.img, RGB(0,0,0),
-                p1[1], p1[2],
-                p2[1], p2[2])
+    naive_line(t.img, RGB(0,0,0), p1, p2)
 end
+
+end  # module Turtle
