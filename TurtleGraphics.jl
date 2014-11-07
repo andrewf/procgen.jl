@@ -2,7 +2,8 @@ module TurtleGraphics
 using Draw
 using Util
 
-export Turtle, makeTurtle, push, pop, move, draw
+export Turtle, makeTurtle, push, pop, move, draw, draw_fn
+
 # turtle graphics
 # the location of the turtle is apply(last(stack), [0;1])
 type Turtle
@@ -34,16 +35,23 @@ function move(t::Turtle, f::Affine)
     t.stack[l] = compose(curr_f(t), f)
 end
 
+# first arg is a function that takes an image and the current transform
+# and returns the offset (in the current transformed coord system)
+# that the cursor should be moved through when
+# the function returns.
+function draw_fn(f::Function, t::Turtle)
+    transform = curr_f(t)
+    offset = f(transform, t.img)
+    move(t, translate(offset))
+end
+
 function draw(t::Turtle, v::Array{Float64, 1})
-    # v is a vector in the coord space defined by current transform
-    z = [0.; 0.]
-    # first point is f(0), second is f(v)
-    p1 = apply(curr_f(t), z)
-    p2 = apply(curr_f(t), v)
-    p1 = u2px(t.img, p1)
-    p2 = u2px(t.img, p2)
-    move(t, translate(v))
-    naive_line(t.img, RGB(0,0,0), p1, p2)
+    draw_fn(t) do f::Affine, img
+        p1 = Util.apply(f, [0.;0.])
+        p2 = Util.apply(f, v)
+        line(img, RGB(0,0,0), p1, p2)
+        v
+    end
 end
 
 end  # module Turtle

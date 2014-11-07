@@ -1,6 +1,6 @@
 module Util
 
-export r, rplus_to_01, real_to_01, Vec, Polygon, area, each_edge, subsurf, Affine, apply, rot2, scale, compose, translate
+export r, rplus_to_01, real_to_01, Vec, Polygon, area, each_edge, subsurf, Affine, apply, affmat, rot2, scale, compose, translate
 
 r(x) = int(round(x))
 
@@ -34,6 +34,10 @@ end
 
 function translate(v::Array{Float64,1})
     Affine([1 0; 0 1], v)
+end
+
+function affmat(v::Array{Float64, 2})
+    Affine(v, [0;0])
 end
 
 

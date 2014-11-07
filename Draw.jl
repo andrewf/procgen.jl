@@ -4,7 +4,7 @@ using Images
 using Color
 using Util
 
-export CoordImage, makeImage, u2px, px2u, plot, dot, each_pixel, render_by_pixels, naive_line, draw, RGB
+export CoordImage, makeImage, u2px, px2u, plot, dot, each_pixel, render_by_pixels, line, naive_line, draw, RGB
 
 type CoordImage
     data :: Array{RGB, 2}
@@ -110,6 +110,10 @@ function naive_line(img::CoordImage, color, p1::Vector{Int64}, p2::Vector{Int64}
             plot(img, [x, y], color)
         end
     end
+end
+
+function line(img::CoordImage, color, p1::Vec, p2::Vec)
+    naive_line(img, color, u2px(img, p1), u2px(img, p2))
 end
 
 function draw(img, color, poly::Polygon)

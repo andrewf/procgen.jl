@@ -26,26 +26,26 @@ ang = 25*pi/180
 function planty(t::Turtle, depth::Int)
     fwd = [0;.3]
     push(t)
-    move(t, Affine(scale(1.), [0;0]))
+    move(t, affmat(scale(1.)))
     draw(t,fwd)
     if depth < 5
         draw(t,fwd)
-        move(t, Affine(rot2(-ang),[0;0]))
+        move(t, affmat(rot2(-ang)))
         push(t)
         push(t)
         planty(t, depth+1)
         pop(t)
-        move(t, Affine(rot2(ang),[0;0]))
+        move(t, affmat(rot2(ang)))
         planty(t, depth+1)
         pop(t)
-        move(t, Affine(rot2(ang),[0;0]))
+        move(t, affmat(rot2(ang)))
         draw(t,fwd)
         push(t)
-        move(t, Affine(rot2(ang),[0;0]))
+        move(t, affmat(rot2(ang)))
         draw(t,fwd)
         planty(t, depth+1)
         pop(t)
-        move(t, Affine(rot2(-ang),[0;0]))
+        move(t, affmat(rot2(-ang)))
         planty(t, depth+1)
     end
     pop(t)
@@ -95,7 +95,7 @@ s = planty_grammar(s)
 s = planty_grammar(s)
 s = planty_grammar(s)
 s = planty_grammar(s)
-s = planty_grammar(s)
+#s = planty_grammar(s)
 
 fwd = [0; -.04]
 
@@ -104,11 +104,23 @@ move(t, Affine(rot2(+ang),[0;0]))
 
 for c in s
     if c == 'F'
-        TurtleGraphics.draw(t, fwd)
+        #TurtleGraphics.draw(t, fwd)
+        draw_fn(t) do f, img
+            col = RGB(0,0,0)
+            a = apply(f, -.04*[0.;0.])
+            b = apply(f, -.04*[-.5;1.])
+            c = apply(f, -.04*[0.; 2.])
+            d = apply(f, -.04*[.5;1.])
+            line(img, col, a, b)
+            line(img, col, b, c)
+            line(img, col, c, d)
+            line(img, col, d, a)
+            -.04*[0.;2.]
+        end
     elseif c == '+'
-        move(t, Affine(rot2(+ang),[0;0]))
+        move(t, affmat(rot2(+ang)))
     elseif c == '-'
-        move(t, Affine(rot2(-ang),[0;0]))
+        move(t, affmat(rot2(-ang)))
     elseif c == '['
         push(t)
     elseif c == ']'
@@ -117,7 +129,6 @@ for c in s
 end
 
 
-#p = Polygon([(-.5,.5),(.5,.5),(.5,-.5),(-.5,-.5)])
 p = transpose([-.5 .5; .5 .5; .5 -.5; -.5 -.5])
 draw(img, RGB(1,0,0), p)
 
