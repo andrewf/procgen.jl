@@ -95,27 +95,26 @@ s = planty_grammar(s)
 s = planty_grammar(s)
 s = planty_grammar(s)
 s = planty_grammar(s)
-#s = planty_grammar(s)
+s = planty_grammar(s)
 
-fwd = [0; -.04]
-
-move(t, translate([-1.; 1.]))
+move(t, translate([-1.; .5]))
 move(t, Affine(rot2(+ang),[0;0]))
+move(t, affmat(scale(-.02)))
 
 for c in s
     if c == 'F'
         #TurtleGraphics.draw(t, fwd)
         draw_fn(t) do f, img
             col = RGB(0,0,0)
-            a = apply(f, -.04*[0.;0.])
-            b = apply(f, -.04*[-.5;1.])
-            c = apply(f, -.04*[0.; 2.])
-            d = apply(f, -.04*[.5;1.])
+            a = apply(f, [0.;0.])
+            b = apply(f, [-.5;1.])
+            c = apply(f, [0.; 2.])
+            d = apply(f, [.5;1.])
             line(img, col, a, b)
             line(img, col, b, c)
             line(img, col, c, d)
             line(img, col, d, a)
-            -.04*[0.;2.]
+            [0.;2.]
         end
     elseif c == '+'
         move(t, affmat(rot2(+ang)))
