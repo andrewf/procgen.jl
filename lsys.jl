@@ -1,6 +1,5 @@
 using TurtleGraphics
 using Draw
-import Images.imwrite
 using Util
 
 function ugly(t::Turtle, depth::Int)
@@ -131,5 +130,5 @@ end
 p = transpose([-.5 .5; .5 .5; .5 -.5; -.5 -.5])
 draw(img, RGB(1,0,0), p)
 
-imwrite(img.data, "turtle.png")
+writeout(img, "turtle.png")
 

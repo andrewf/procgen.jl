@@ -1,6 +1,5 @@
 using Util
 using Draw
-import Images.imwrite
 
 img = makeImage(-1,-1, 3,3, 400)
 
@@ -68,5 +67,5 @@ end
 
 render_ifs(img, RGB(0, .0, .0), choose_probs(heighway))
 
-imwrite(img.data, "ifs.png")
+writeout(img, "ifs.png")
 

@@ -4,13 +4,17 @@ using Images
 using Color
 using Util
 
-export CoordImage, makeImage, u2px, px2u, plot, dot, each_pixel, render_by_pixels, line, naive_line, draw, RGB
+export CoordImage, makeImage, writeout, u2px, px2u, plot, dot, each_pixel, render_by_pixels, line, naive_line, draw, RGB
 
 type CoordImage
     data :: Array{RGB, 2}
     top :: (Float64, Float64)
     dims :: (Float64, Float64)
     res :: Float64
+end
+
+function writeout(img::CoordImage, fname)
+    imwrite(img.data, fname)
 end
 
 function u2px(img::CoordImage, pt::Vec)
@@ -66,7 +70,7 @@ end
 function render_by_pixels(fn, name, top, left, w, h, res)
     img = makeImage(top, left, w, h, res)
     each_pixel(fn, img)
-    imwrite(img.data, "$name.png")
+    writeout(img, "$name.png")
 end
 
 function naive_line(img::CoordImage, color, p1::Vector{Int64}, p2::Vector{Int64})

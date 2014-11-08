@@ -45,6 +45,8 @@ function draw_fn(f::Function, t::Turtle)
     move(t, translate(offset))
 end
 
+# draw a line and move the cursor through v, in the current
+# coordinate system
 function draw(t::Turtle, v::Array{Float64, 1})
     draw_fn(t) do f::Affine, img
         p1 = Util.apply(f, [0.;0.])
