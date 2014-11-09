@@ -1,37 +1,14 @@
 module Noise
 
-export perlin, simplex, valuenoise, get_gradient, default_get_value, octaves, noise_sum
-
-gridsize = (13, 11)
-grads = Array(Vector{Float64}, gridsize[2], gridsize[1])
+export perlin, simplex, valuenoise, octaves, noise_sum, default_grads, default_values, makeGradientGrid, makeValueGrid
 
 function r(x)
     int(round(x))
 end
 
-for y in 1:gridsize[2]
-    for x in 1:gridsize[1]
-        theta = rand()*2*pi
-        grads[y, x] = [cos(theta), sin(theta)]
-    end
-end
-
-function get_gradient(x::Int, y::Int)
-    # mod them by the size to make them loop
-    # xor them to "hash" them
-    # mod by size of grad array
-    x = mod(x, gridsize[1])
-    y = mod(y, gridsize[2])
-    grads[y + 1, x + 1]
-end
-
 function dp(a::Array{Float64, 1}, b::Array{Float64, 1})
     a[1]*b[1] + a[2]*b[2]
 end
-
-########################################
-# Perlin Noise
-########################################
 
 # nice interpolation function
 function interp(x::Float64)
@@ -40,6 +17,46 @@ end
 
 assert(interp(0.0) == 0.0)
 assert(interp(1.0) == 1.0)
+
+########################################
+# Gradient and value grid utils
+########################################
+
+type Grid{T}
+    grads::Array{T, 2}
+    get::Function
+end
+
+function makeGrid(newVal::Function, T::Type, size::Vector{Int})
+    g = Array(T, size[1], size[2])
+    for a in 1:size[1]
+        for b in 1:size[2]
+            #theta = rand()*2*pi
+            #grads[y, x] = [cos(theta), sin(theta)]
+            g[a, b] = newVal() # [cos(theta); sin(theta)]
+        end
+    end
+    function get_grad(x, y)
+        x = mod(x, size[1]) + 1
+        y = mod(y, size[2]) + 1
+        g[x, y]
+    end
+    Grid{T}(g, get_grad)
+end
+
+
+########################################
+# Perlin Noise
+########################################
+
+function makeGradientGrid(size)
+    makeGrid(Vector{Float64}, size) do
+        theta = rand()*2*pi
+        [cos(theta), sin(theta)]
+    end
+end
+
+default_grads = makeGradientGrid([23; 17])
 
 function perlin(gradient::Function, x::Float64, y::Float64)
     xgrid = floor(x)  # lower grid coord, and fraction across the square
@@ -131,19 +148,11 @@ end
 # Value noise
 ########################################
 
-# generate grid of random values in (0, 1)
-values = Array(Float64, gridsize[2], gridsize[1])
-for y in 1:gridsize[2]
-    for x in 1:gridsize[1]
-        values[y, x] = rand()
-    end
+function makeValueGrid(size)
+    makeGrid(rand, Float64, size)
 end
 
-function default_get_value(x::Int64, y::Int64)
-    x = mod(x, gridsize[1]) + 1
-    y = mod(y, gridsize[2]) + 1
-    values[y,x]
-end
+default_values = makeValueGrid([17; 19])
 
 function valuenoise(getvalue::Function, x::Float64, y::Float64)
     xgrid = int(floor(x))
