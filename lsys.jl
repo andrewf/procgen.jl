@@ -6,6 +6,16 @@ ang = 25*pi/180
 
 TurtleRenderer = [
     'F' => (t::Turtle) -> TurtleGraphics.draw(t, [0.; 1.]),
+    'X' => (t::Turtle) -> draw_fn(t) do f, img
+                                # draw an X
+                                p1 = Util.apply(f, [-.5; -.5])
+                                p2 = Util.apply(f, [.5; .5])
+                                q1 = Util.apply(f, [-.5; .5])
+                                q2 = Util.apply(f, [.5; -.5])
+                                line(img, RGB(1, 0, 1), p1, p2)
+                                line(img, RGB(1, 0, 1), q1, q2)
+                                [0.0; 0.]
+                          end,
     '+' => (t::Turtle) -> move(t, affmat(rot2(ang))),
     '-' => (t::Turtle) -> move(t, affmat(rot2(-ang))),
     '[' => (t::Turtle) -> push(t),
@@ -36,20 +46,28 @@ end
 s = ['X'] 
 
 s = runLModule(PlantyGrammar, s, Array(Char,0))
+first = s
 s = runLModule(PlantyGrammar, s, Array(Char,0))
 s = runLModule(PlantyGrammar, s, Array(Char,0))
 s = runLModule(PlantyGrammar, s, Array(Char,0))
 s = runLModule(PlantyGrammar, s, Array(Char,0))
-s = runLModule(PlantyGrammar, s, Array(Char,0))
-s = runLModule(PlantyGrammar, s, Array(Char,0))
-s = runLModule(PlantyGrammar, s, Array(Char,0))
+#s = runLModule(PlantyGrammar, s, Array(Char,0))
 
 img = makeImage(-2, -11, 16, 12, 50)
 t = makeTurtle(img)
 
+println(first)
+
+push(t)
+    move(t, translate([4., 0.]))
+    move(t, affmat(scale(-1.1)))
+    move(t, Affine(rot2(+ang),[0;0]))
+    runLModule(TurtleRenderer, first, t)
+pop(t)
+
 move(t, translate([-1.; .5]))
 move(t, Affine(rot2(+ang),[0;0]))
-move(t, affmat(scale(-.02)))
+move(t, affmat(scale(-.2)))
 
 runLModule(TurtleRenderer, s, t)
 
