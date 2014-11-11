@@ -5,7 +5,6 @@ using Util
 export Turtle, makeTurtle, push, pop, move, draw, draw_fn
 
 # turtle graphics
-# the location of the turtle is apply(last(stack), [0;1])
 type Turtle
     stack :: Array{Affine}
     img :: CoordImage
@@ -13,6 +12,10 @@ end
 
 function makeTurtle(img:: CoordImage)
     Turtle([Affine([1.0 0; 0 1.], [0; 0])], img)
+end
+
+function curr_f(t::Turtle)
+    last(t.stack)
 end
 
 function push(t::Turtle)
@@ -25,10 +28,6 @@ end
 function pop(t::Turtle)
     pop!(t.stack)
     t
-end
-
-function curr_f(t::Turtle)
-    last(t.stack)
 end
 
 # move the transform cursor through f
