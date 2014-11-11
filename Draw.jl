@@ -7,7 +7,7 @@ using Util
 export CoordImage, makeImage, writeout, u2px, px2u, plot, dot, each_pixel, render_by_pixels, line, naive_line, draw, RGB
 
 type CoordImage
-    data :: Array{RGB, 2}
+    data :: Array{RGB{Float64}, 2}
     top :: (Float64, Float64)
     dims :: (Float64, Float64)
     res :: Float64
