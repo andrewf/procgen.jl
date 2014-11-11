@@ -19,10 +19,12 @@ function push(t::Turtle)
     # we actually want to push a copy of the top
     # so we can mutate it.
     push!(t.stack, last(t.stack))
+    t
 end
 
 function pop(t::Turtle)
     pop!(t.stack)
+    t
 end
 
 function curr_f(t::Turtle)
@@ -33,6 +35,7 @@ end
 function move(t::Turtle, f::Affine)
     l = length(t.stack)
     t.stack[l] = compose(curr_f(t), f)
+    t
 end
 
 # first arg is a function that takes an image and the current transform
@@ -43,6 +46,7 @@ function draw_fn(f::Function, t::Turtle)
     transform = curr_f(t)
     offset = f(transform, t.img)
     move(t, translate(offset))
+    t
 end
 
 # draw a line and move the cursor through v, in the current
