@@ -24,29 +24,14 @@ end
 
 # given an image, a color and a [(prob, fn)], render
 # the specified IFS
-function render_ifs(img, color, fns)
-    probs = map(first, fns)
-    partial_total_probs = Float64[]
-    total_p = 0
-    for i in range(1, length(probs))
-        total_p += probs[i]
-        push!(partial_total_probs, total_p)
-    end
-
+function render_ifs(img, color, fns::Vector{(Float64, Function)})
     x = [0; 0]
     n = length(fns)
 
+    ts = random_dispatcher(fns)
+
     for i in range(1,1000000)
-        z = rand()*total_p
-        ind = 1
-        for j in range(1, n)
-            ind = j
-            if z < partial_total_probs[j]
-                break
-            end
-        end
-        t = fns[ind][2]
-        x = t(x)
+        x = ts(x)
         if i > 100  # this is supposedly important
             # plot the point
             plot(img, x, color)

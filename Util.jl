@@ -2,7 +2,8 @@ module Util
 
 export r, rplus_to_01, real_to_01,
        Vec, Polygon, area, each_edge, subsurf,
-       Affine, apply, affmat, rot2, scale, compose, translate
+       Affine, apply, affmat, rot2, scale, compose, translate,
+       random_dispatcher
 
 r(x) = int(round(x))
 
@@ -86,6 +87,30 @@ function subsurf(poly)
         i+=1
     end
     return new_points
+end
+
+function random_dispatcher(fs::Vector{(Float64, Function)})
+    # create list of partial sums of probabilities
+    partial_total_probs = Float64[]
+    total_p = 0.0
+    for i in 1:length(fs)
+        total_p += first(fs[i])
+        push!(partial_total_probs, total_p)
+    end
+
+    function(x...)
+        r = rand()*total_p
+        #println("random ", r)
+        ind = 1
+        for j in 1:length(fs)
+            ind = j
+            if r < partial_total_probs[j]
+                break
+            end
+        end
+        #println("  calling ", ind)
+        fs[ind][2](x...)
+    end
 end
 
 end  # module Util
