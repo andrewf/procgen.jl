@@ -2,7 +2,7 @@ using Draw
 using TurtleGraphics
 using Util
 
-ang = 25*pi/180
+ang = pi/2 # 25*pi/180
 
 TurtleRenderer = [
     'F' => t::Turtle -> TurtleGraphics.draw(t, [0.; 1.]),
@@ -28,11 +28,11 @@ longstr = ['F', '-', '[', '[', 'X', ']', '+', 'X', ']',
 PlantyGrammar = [
     "startState" => ['X'],
     'F' => s -> vcat(s, 'F', 'F'),
-    'X' => s -> vcat(s, longstr)::Vector{Char},
-    '+' => s -> vcat(s, '+')::Vector{Char},
-    '-' => s -> vcat(s, '-')::Vector{Char},
-    '[' => s -> vcat(s, '[')::Vector{Char},
-    ']' => s -> vcat(s, ']')::Vector{Char}
+    'X' => s -> vcat(s, longstr),
+    '+' => s -> vcat(s, '+'),
+    '-' => s -> vcat(s, '-'),
+    '[' => s -> vcat(s, '['),
+    ']' => s -> vcat(s, ']')
 ]
 
 # take a series of characters and process it according
@@ -54,21 +54,28 @@ function renderLSystem(mod, iterations::Int, turtle)
     runLModule(TurtleRenderer, s, turtle)
 end
 
+############################
+# actually render something
+############################
+
 img = makeImage(-2, -11, 16, 12, 50)
 t = makeTurtle(img)
 
-push(t)
-    move(t, translate([4., 0.]))
-    move(t, affmat(scale(-1.1)))
-    move(t, Affine(rot2(+ang),[0;0]))
-    renderLSystem(PlantyGrammar, 1, t)
-pop(t)
+#currgrammar = PlantyGrammar
+currgrammar = [
+    "startState" => ['F', '-', 'F', '-', 'F', '-', 'F', '-'],
+    'F' => s -> vcat(s, ['F', '+', 'F', 'F', '-', 'F', 'F', '-', 'F', '-',
+                            'F', '+', 'F', '+', 'F']),
+    '+' => s -> vcat(s, '+'),
+    '-' => s -> vcat(s, '-'),
+    '[' => s -> vcat(s, '['),
+    ']' => s -> vcat(s, ']')
+]
 
-move(t, translate([-1.; 0.]))
-move(t, affmat(scale(-.1)))
+move(t, translate([4., -2.]))
+move(t, affmat(scale(-0.025)))
 move(t, Affine(rot2(+ang),[0;0]))
-
-renderLSystem(PlantyGrammar, 6, t)
+renderLSystem(currgrammar, 5, t)
 
 p = transpose([-.5 .5; .5 .5; .5 -.5; -.5 -.5])
 Draw.draw(img, RGB(1,0,0), p)
