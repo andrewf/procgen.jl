@@ -47,8 +47,6 @@ TurtleRenderer = makeLProcessor(G, [
     (G.pop, (sym, t::Turtle) -> pop(t))
 ], (sym, t)->t)
 
-#longstr = ['F', '-', '[', '[', 'X', ']', '+', 'X', ']',
-#            '+', 'F', '[', '+', 'F', 'X', ']', '-', 'X']
 longstr = [G.F, G.left, G.push, G.push, G.X, G.pop, G.right, G.X, G.pop,
             G.right, G.F, G.push, G.right, G.F, G.X, G.pop, G.left, G.X]
 

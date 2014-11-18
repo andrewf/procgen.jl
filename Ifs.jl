@@ -26,10 +26,7 @@ end
 # the specified IFS
 function render_ifs(img, color, fns::Vector{(Float64, Function)})
     x = [0; 0]
-    n = length(fns)
-
     ts = random_dispatcher(fns)
-
     for i in range(1,1000000)
         x = ts(x)
         if i > 100  # this is supposedly important
