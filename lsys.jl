@@ -2,8 +2,6 @@ using Draw
 using TurtleGraphics
 using Util
 
-ang = 25*pi/180
-
 # basic set of constants standing in for the characters
 # of a normal lsystem
 module G
@@ -29,74 +27,72 @@ function makeLProcessor(mod::Module, bindings::Vector{(Int64, Function)}, defaul
     ret
 end
 
-TurtleRenderer = makeLProcessor(G, [
-    (G.F, (sym, t::Turtle) -> TurtleGraphics.draw(t, [0.; 1.])),
-#    'X' => (sym, t::Turtle) -> draw_fn(t) do f, img
-#                                # draw an X
-#                                p1 = Util.apply(f, [-.5; -.5])
-#                                p2 = Util.apply(f, [.5; .5])
-#                                q1 = Util.apply(f, [-.5; .5])
-#                                q2 = Util.apply(f, [.5; -.5])
-#                                line(img, RGB(1, 0, 1), p1, p2)
-#                                line(img, RGB(1, 0, 1), q1, q2)
-#                                [0.0; 0.]
-#                          end,
-    (G.right, (sym, t::Turtle) -> move(t, affmat(rot2(ang)))),
-    (G.left, (sym, t::Turtle) -> move(t, affmat(rot2(-ang)))),
-    (G.push, (sym, t::Turtle) -> push(t)),
-    (G.pop, (sym, t::Turtle) -> pop(t))
-], (sym, t)->t)
+function TurtleRenderer(t::Turtle, angle)
+    makeLProcessor(G, [
+        (G.F, (sym) -> TurtleGraphics.draw(t, [0.; 1.])),
+        (G.right, (sym) -> move(t, affmat(rot2(angle)))),
+        (G.left, (sym) -> move(t, affmat(rot2(-angle)))),
+        (G.push, (sym) -> push(t)),
+        (G.pop, (sym) -> pop(t))
+    ], (sym)->Nothing)
+end
 
 longstr = [G.F, G.left, G.push, G.push, G.X, G.pop, G.right, G.X, G.pop,
             G.right, G.F, G.push, G.right, G.F, G.X, G.pop, G.left, G.X]
 
-PlantyGrammar = makeLProcessor(G, [
-    (G.F,     (sym,s) -> vcat(s, G.F, G.F)),
-    (G.X,     (sym,s) -> vcat(s, longstr)),
-], (sym, state) -> vcat(state, sym))
-
-# take a series of characters and process it according
-# to one of the above grammar/processing module thingies
-function runLModule(mod, data::Vector{Int64}, state)
-    for sym in data
-        if sym > G.N || sym < 1
-        end
-        state = mod[sym](sym, state)
-    end
-    state
+function PlantyGrammar(prev)
+    makeLProcessor(G, [
+        (G.F,     (sym) -> begin prev[G.F](G.F); prev[G.F](G.F) end),
+        (G.X,     (sym) -> begin
+                               for s in longstr
+                                   prev[s](s)
+                               end
+                           end),
+    ], (sym) -> prev[sym](sym))
 end
 
-# use the passed grammar to iterate some number of times,
-# then render the result in the passed turtle
-function renderLSystem(mod, init_state, iterations::Int, turtle)
-    s = init_state
-    for i in 1:iterations
-        s = runLModule(mod, s, Int64[])
-    end
-    runLModule(TurtleRenderer, s, turtle)
-end
+# this approach is only good for context-dependent lsystems
+## take a series of characters and process it according
+## to one of the above grammar/processing module thingies
+#function runLModule(mod, data::Vector{Int64}, state)
+#    for sym in data
+#        if sym > G.N || sym < 1
+#        end
+#        state = mod[sym](sym, state)
+#    end
+#    state
+#end
+#
+## use the passed grammar to iterate some number of times,
+## then render the result in the passed turtle
+#function renderLSystem(mod, init_state, iterations::Int, turtle)
+#    s = init_state
+#    for i in 1:iterations
+#        s = runLModule(mod, s, Int64[])
+#    end
+#    runLModule(TurtleRenderer, s, turtle)
+#end
 
 ############################
 # actually render something
 ############################
 
-img = makeImage(-2, -11, 16, 12, 50)
+img = makeImage(-4, -11, 16, 12, 50)
 t = makeTurtle(img)
 
-currgrammar = PlantyGrammar
-#currgrammar = [
-#    "startState" => ['F', '-', 'F', '-', 'F', '-', 'F', '-'],
-#    'F' => s -> vcat(s, ['F', '+', 'F', '-', 'F', 'F', '-', 'F', '-', 'F', '+', '+']),
-#    '+' => s -> vcat(s, '+'),
-#    '-' => s -> vcat(s, '-'),
-#    '[' => s -> vcat(s, '['),
-#    ']' => s -> vcat(s, ']')
-#]
+#move(t, translate([2., 1.]))
+move(t, affmat(scale(-0.02)))
 
-move(t, translate([2., 1.]))
-move(t, affmat(scale(-0.05)))
-move(t, Affine(rot2(+ang),[0;0]))
-renderLSystem(currgrammar, [G.X], 7, t)
+#renderLSystem(currgrammar, [G.X], 7, t)
+lsys = PlantyGrammar(TurtleRenderer(t, 25*pi/180))
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys = lsys |> PlantyGrammar
+lsys[G.X](G.X)
 
 p = transpose([-.5 .5; .5 .5; .5 -.5; -.5 -.5])
 Draw.draw(img, RGB(1,0,0), p)
