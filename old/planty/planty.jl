@@ -51,28 +51,6 @@ function PlantyGrammar(prev)
     ], (sym) -> prev[sym](sym))
 end
 
-# this approach is only good for context-dependent lsystems
-## take a series of characters and process it according
-## to one of the above grammar/processing module thingies
-#function runLModule(mod, data::Vector{Int64}, state)
-#    for sym in data
-#        if sym > G.N || sym < 1
-#        end
-#        state = mod[sym](sym, state)
-#    end
-#    state
-#end
-#
-## use the passed grammar to iterate some number of times,
-## then render the result in the passed turtle
-#function renderLSystem(mod, init_state, iterations::Int, turtle)
-#    s = init_state
-#    for i in 1:iterations
-#        s = runLModule(mod, s, Int64[])
-#    end
-#    runLModule(TurtleRenderer, s, turtle)
-#end
-
 ############################
 # actually render something
 ############################
