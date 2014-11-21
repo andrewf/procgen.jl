@@ -1,7 +1,7 @@
 using Images
 using Color
-
-include("util.jl")
+using Util
+using Draw
 
 img = makeImage(
         # position
@@ -49,5 +49,5 @@ escape_time(
 )
 
 println("writing img")
-imwrite(img.data, "fractal.png")
+writeout(img, "fractal.png")
 
