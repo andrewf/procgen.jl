@@ -1,16 +1,10 @@
-using Images
-using Color
-using Util
-using Draw
+# module for doing escape-time fractals
 
-img = makeImage(
-        # position
-        -2.2, -2,
-        # dimensions
-        4, 4,
-        # resolution
-        200  # px/u
-      )
+module Fractal
+
+export escape_time
+
+using Draw
 
 ITERATIONS = 200
 RADIUS = 5.0
@@ -34,20 +28,6 @@ function escape_time(img, initfn, iterfn)
     end
 end
 
-function real_to_01(x)
-    (atan(x) + pi/2)/pi
-end
 
-println("generating")
 
-escape_time(
-    img,
-    # init pos -> init value
-    c->c,
-    # iterated function (curr, px) -> new
-    (z,c)->z^2 + c
-)
-
-println("writing img")
-writeout(img, "fractal.png")
-
+end  # module
